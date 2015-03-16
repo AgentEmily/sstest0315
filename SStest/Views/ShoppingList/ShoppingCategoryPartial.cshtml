@@ -1,0 +1,39 @@
+﻿@model IEnumerable<SStest.Models.PList>
+
+<div class="col-sm-4">
+    <div>
+        @using (Html.BeginForm("CategoryInsert", "ShoppingList", FormMethod.Post))
+        {
+            @Html.TextBox("item", "", new { @class = "form-control" });
+            <input class="btn btn-primary" type="submit" id="submit" value="+" style="font-size:larger; font-weight:600" />
+        }
+    </div>
+    <div class="list-group">
+       
+        @foreach (var _List in Model)
+        {
+            <a href="~/ShoppingList/ShoppingListP?id=@_List.PList_ID" class="list-group-item" id="plist@_List.PList_ID" >
+                @_List.ListName
+            </a>
+        }
+    </div>
+</div>
+
+<div class=" col-sm-4">
+    <div>
+        @using (Html.BeginForm("AddItem", "ShoppingList", FormMethod.Post))
+        {
+
+            @Html.TextBox("item", "", new { @class = "form-control" });
+            <input class="btn btn-primary" type="submit" id="submit" value="+" style="font-size:larger; font-weight:600" />
+        }
+    </div>
+    <ul class="list-group">
+        @Html.Action("ListItemPartial", "ShoppingList")
+       
+    </ul>
+</div>
+
+
+
+

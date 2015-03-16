@@ -1,0 +1,126 @@
+﻿@model SStest.Models.Members
+@{
+    ViewBag.Title = "會員資料修改";
+}
+@section css{
+    <style>
+
+    .form-horizontal{
+        margin-top:60px;
+
+    }
+    </style>
+    
+    }
+<h2>@ViewBag.Title</h2>
+<div id="changesaved"><span class="label label-success">變更已儲存</span></div>
+
+@using (Html.BeginForm("ModifyMemberData", "MemberCenter", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+{
+
+        
+                @Html.HiddenFor(m => m.Member_ID)
+    @Html.HiddenFor(m => m.Id)
+    <form class="form-horizontal member">
+        <div class="form-group">
+            @Html.Label("MemberName", "姓名", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.MemberName, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Username", "帳號", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.Username, new { @class = "form-control" })
+            </div>
+        </div>
+
+        
+
+        <div class="form-group">
+            @Html.Label("Birthdate", "生日", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.Birthdate, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("TelPhone", "聯絡電話", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.TelPhone, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("MobilePhone", "行動電話", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.MobilePhone, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Address", "聯絡地址", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.Address, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Email", "電子郵件", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("M_Picture", "個人照片", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                @Html.TextBox("Picture", null, new { type = "file", @class = "form-control" })
+            </div>
+
+
+        </div>
+        <div class="form-group">
+            @Html.Label("M_Picture", "圖片", new { @class = "col-sm-2 control-label" })
+            <div class="col-sm-5">
+                <img id="img1" src="@Url.Action("GetImagebytes", "MemberCenter", new {id = Model.Member_ID })" style="width:200px" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button id="changesaved" onclick="Save()" type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span> 儲存</button>
+            </div>
+        </div>
+    </form>
+
+}
+
+@*@section aside{
+    <img id="img1" style="width:200px" />
+}*@
+
+@section scripts{
+    <script>
+        $('#Picture').on("change", function () {
+        var reader = new FileReader();
+        reader.readAsDataURL(this.files[0]);
+        reader.addEventListener("load", function (event) {
+            $('#img1').attr("src", event.target.result);
+        }, false);
+
+        
+    })
+        $(function () {
+            
+            $('#changesaved').hide();
+
+        })
+
+        function Save() {
+            var reader = new FileReader();
+            var r = $('#Picture')
+            reader.readAsDataURL(r.files[0]);
+        }
+    </script>
+}

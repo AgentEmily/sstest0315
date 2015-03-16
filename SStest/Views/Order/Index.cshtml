@@ -1,0 +1,114 @@
+﻿@model SStest.Models.OrderModel.Ship
+@{
+    ViewBag.Title = "結帳";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    //取得目前購物車
+    var cart = SStest.Models.Carts.Operation.GetCurrentCart();
+}
+
+<h2>結帳</h2>
+@*列出購物車內商品讓使用者作最後確認*@
+<table class="table">
+    <thead><tr><td>名稱</td><td>售價</td><td>數量</td><td>小計</td></tr></thead>
+    <tbody>
+        @foreach (var pd in cart)   /* 使用foreach將所有商品列出 */
+        {
+            <tr>
+                <td>@pd.ProductName</td>
+                <td class="t">@pd.UnitPrice</td>
+                <td><input id="stocks" type="number"value="@pd.Stock" min="1" max="10" class="" /></td>
+                <td class="t2">@pd.Amount</td>
+            </tr>
+        }
+        <tr><td colspan="3"></td><td>總計 : <span id="ta">@cart.TotalAmount</span></td></tr>        
+    </tbody>
+</table>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    //更改購買數量，並連動更改金額小記及總金額
+    $(document).on('change', "#stocks", function () {
+        var stock = $(this).val();
+        console.log($(this).val());
+        var unitprice = $(this).parents('tr').children('td:nth-child(2)').text();   //抓售價那格的值
+        console.log(unitprice);
+        var total = stock * unitprice;
+        console.log(total);
+        $(this).parents('tr').children('td:nth-child(4)').text(total);   //抓到商品小記那格，並把total算出來的值塞給它
+
+        var totalamount = 0;
+        $('.t2').each(function () {
+            totalamount += parseInt($(this).parents('tr').children('td:nth-child(4)').text());
+        });
+
+        $('#ta').text(totalamount);
+
+        //
+        var backarray = [];
+        var row = $("tr > td").length;
+        for (i = 1; i <= row; i++) {
+            //$(this).parents('tr').children('td:nth-child(' + i + ')').text()
+            //alert(i);
+
+            var abc =
+                {
+                    ProductName: $(this).parents('tr').children('td:nth-child(' + i + ')').text(),
+                    UnitPrice: $(this).parents('tr').children('td:nth-child(' + i + ')').text(),
+                    Stock: $(this).parents('tr').children('td:nth-child(' + i + ')').text(),
+                    Amount: $(this).parents('tr').children('td:nth-child(' + i + ')').text()
+                };
+            console.log(i);
+        }
+        backarray.push(abc);
+        var postdata = { databack: backarray };
+        $.ajax({
+            "type": "post",
+            "url": "../Order/Insert",
+            "data": "postdata",
+        });
+    });
+</script>
+
+
+@*讓使用者填入寄送資訊*@
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>收貨人資訊</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Consignee, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.Consignee, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Consignee, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ConsigneePhone, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.ConsigneePhone, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ConsigneePhone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ShipAddress, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.ShipAddress, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ShipAddress, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="確定購買" class="btn btn-primary" />
+            </div>
+        </div>
+
+    </div>
+}

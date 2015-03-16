@@ -1,0 +1,327 @@
+﻿@model SStest.Models.Products
+
+@{
+    Layout = "~/Views/Shared/_AsideLayout.cshtml";
+    //ViewBag.Title = "Index";
+    var commentList = new List<SStest.Models.Comment>();
+    using (SStest.Models.SmartShoppingEntities db = new SStest.Models.SmartShoppingEntities())
+    {
+        commentList = (from s in db.Comment.Include("Members")
+                       where s.Product_ID == this.Model.Product_ID
+                       orderby s.Date descending
+                       select s).ToList();
+    }
+    
+}
+
+
+<style>
+    .dl-horizontal {
+        /*border: 1px solid red;*/
+    }
+
+    /*.ProductImg{
+        
+     height: 150px; width: 220px; overflow: hidden; 
+     margin:0 auto;
+  
+    }*/
+
+    .form-group label {
+    float: left;
+    text-align: left;
+    font-weight: normal;
+}
+
+.form-group select {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+.panel.panel-default.productd{
+
+    width: 100%;
+    height: 800px;
+    overflow: scroll;
+}
+
+.star{
+    height:35px;
+    width:35px;
+}
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="">
+                <div class="ProductImg"><img class="img-thumbnail" src='@Url.Action("GetImageByte", "Product", new { id = Model.Product_ID })'></div>
+            </div>
+            <h3>@Model.ProductName</h3>
+            <p>
+                <img src="/images/product-details/starnofill.png" class="star" id="stare1" alt="str" />
+                <img src="/images/product-details/starnofill.png" class="star" id="stare2" alt="str" />
+                <img src="/images/product-details/starnofill.png" class="star" id="stare3" alt="str" />
+                <img src="/images/product-details/starnofill.png" class="star" id="stare4" alt="str" />
+                <img src="/images/product-details/starnofill.png" class="star" id="stare5" alt="str" />
+               <span id="starcount"></span>
+            </p>
+            <p>@Model.Description</p>
+            
+            <p>售價 : @Model.UnitPrice</p>
+            <p>庫存 : @Model.Stock</p>
+        </div>
+        <div class="col-sm-6 ">
+            <div><img src="~/images/product-details/fruit-choc-gift-basket.jpg" /></div>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label class="" for="購買頻率: 每">
+                        購買頻率: 每
+                        <select class="form-control" id="selectdNO">
+                            <option value="0">請選擇</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10 </option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+
+                        <select class="form-control" id="selectdBY">
+                            <option value="1">月</option>
+                            <option value="2">週</option>
+                            <option value="3">天</option>
+
+                        </select>
+                        一次
+                    </label>
+                </div>
+            </form>
+
+                @*<script>
+                        $.getJSON("/Product/RepeatJSON", {}, function (data) {
+                $.each(data, function (i, repeat) {
+                    //alert(category.CategoryName);
+                    var opt = $("<option></option>").val(repeat.Repeat_ID).text(repeat.RepeatDay);
+                    $('#select1').append(opt);
+                })
+                load($('#select1').val());
+            })
+            $('#select1').on('change', function () {
+                //alert($(this).val());
+                // $.getJSON()
+                //location.href = ""
+                load($(this).val())
+            })
+                    </script>*@
+
+
+            
+            <br />
+            <input type="checkbox" name="加入回購清單" id="addrepeat" checked />加入回購清單
+            <p>
+                <a onclick="AddToCart('@Model.Product_ID')" href="javascript:void(0);"
+                   class="btn btn-primary" role="button">
+                    加入購物車
+                </a>
+                @if (System.Web.HttpContext.Current.Session["switchingid"] != null)
+                {
+                    <a onclick="" href="~/ShoppingList/SetProduct?id=@Model.Product_ID"
+                       class="btn btn-danger" role="button">
+                        設定為智慧回購商品
+                    </a>
+                }
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <h2 class="title text-center"> 買 @Model.ProductName 還買了....... </h2>
+        @Html.Action("RecommendationChart", "Product", new { P_ID = @Model.Product_ID })
+    </div>
+    <div class="row">
+        <div class="panel panel-default productd">
+            <div class="panel-heading">
+                <h4>商品評論</h4></div>
+            <div class="panel-body">
+                @using (Html.BeginForm("AddComment", "Product", FormMethod.Post))
+                {
+                    @Html.HiddenFor(m => m.Product_ID)
+                    <input type="hidden" value="0" id="starts" name="starts" />
+                    <img src="/images/product-details/starnofill.png" class="star" id="star1" alt="str" />
+                    <img src="/images/product-details/starnofill.png" class="star" id="star2" alt="str" />
+                    <img src="/images/product-details/starnofill.png" class="star" id="star3" alt="str" />
+                    <img src="/images/product-details/starnofill.png" class="star" id="star4" alt="str" />
+                    <img src="/images/product-details/starnofill.png" class="star" id="star5" alt="str" />
+                    <div id="mydiv"></div>
+                    @Html.TextArea("Content", "", 5, 200, new { @class = "form-control" })
+
+                    <input type="submit" value="留言" class="btn btn-default" />
+
+                }
+                <dl class="dl-horizontal">
+
+                    @foreach (var comment in commentList)
+                    {
+                        int total = 0;
+
+                        total += Convert.ToInt32(comment.Stars);
+
+
+
+                        for (int i = 0; i < comment.Stars; i++)
+                        {
+                            <img src="/images/product-details/starfill.png" class="star" alt="str" />
+                        }
+
+                        <dt> @comment.Members.MemberName：</dt>
+
+
+                        <dd>@comment.Comment1  ( @comment.Date )  </dd>
+                    }
+
+                </dl>
+                
+                @*@section scripts{*@
+                <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+               
+                <script>
+                   
+                    function setStar() {
+                        //顯現星星
+                        $('img[id ^= "star"]').hover(over, out).click(click);
+                        $.ajax({
+                            type: 'GET',
+                            url:'@Url.Action("GetStar", "Product")',
+                            data:{
+                                id:'@Model.Product_ID'
+
+                            }
+                        })
+                        .done(function (datas) {
+                            var staravg = datas;
+                            
+                            starcount = parseFloat(staravg);//2.57
+                            document.getElementById("starcount").innerHTML = starcount;
+                            var intstar = parseInt(starcount);//2
+                            
+                            for (var i = 1; i <= intstar; i++) {
+                                document.getElementById("stare" + i).src = "/images/product-details/starfill.png";
+
+                            }
+                            if ((starcount - intstar) <= 0.5 && intstar != 5 && (starcount - intstar) >= 0.2) {
+                                document.getElementById("stare" + (intstar + 1)).src = "/images/product-details/starnofillH.png";
+
+                            }
+
+                            if ((starcount - intstar) > 0.5 && intstar != 5) {
+                                document.getElementById("stare" + (intstar + 1)).src = "/images/product-details/starfill.png";
+                            }
+                                
+                           
+
+                        })
+
+                        //$('#estars')
+                    }
+                    window.onload = function () { setStar(); }
+                    var a;
+                    function over()  //滑鼠滑進去
+                    {
+                        //判斷id
+                        var id = event.srcElement.id;
+                        //用id決定畫幾顆星星
+                        var n;
+                        switch (id) {
+                            case 'star1': n = 1; break;
+                            case 'star2': n = 2; break;
+                            case 'star3': n = 3; break;
+                            case 'star4': n = 4; break;
+                            case 'star5': n = 5; break;
+                        }
+                        ckStar(n)
+
+                    }
+
+                    function out()   //滑鼠滑出去
+                    {
+                        //判斷id
+                        var id = event.srcElement.id;
+                        //用id決定畫幾顆星星
+                        var n;
+                        switch (id) {
+                            case 'star1': n = 1; break;
+                            case 'star2': n = 2; break;
+                            case 'star3': n = 3; break;
+                            case 'star4': n = 4; break;
+                            case 'star5': n = 5; break;
+                        }
+
+                        if (a == false) {
+                            n = n - 1;
+                        }
+                        ckStar(n);
+                    }
+
+                    function ckStar(n) {
+                        for (var i = 1; i <= 5; i++) {
+                            document.getElementById("star" + i).src = "/images/product-details/starnofill.png";
+                        }
+
+                        for (var j = 1; j <= n; j++) {
+                            document.getElementById("star" + j).src = "/images/product-details/starfill.png";
+                        }
+                        document.getElementById("mydiv").innerHTML = "你評了" + n + "顆星星!"
+                        a = false;
+                    }
+                    function click() {
+                        a = true;
+                        var id = event.srcElement.id;
+                        //用id決定畫幾顆星星
+                        var n;
+                        switch (id) {
+                            case 'star1': n = 1; break;
+                            case 'star2': n = 2; break;
+                            case 'star3': n = 3; break;
+                            case 'star4': n = 4; break;
+                            case 'star5': n = 5; break;
+                        }
+                        console.log(n);
+                        $('#starts').val(n);
+                        //console.log($('#starts').val());
+                        @*$.ajax({
+            type: 'POST',
+            url: '@Url.Action("StarReview","Product")',
+            data: { n: n }
+
+        })
+            .done(function (datas) { alert(datas)})*@
+                        //.done(function (datas) {datas})
+
+                    }
+                    $('.star').on('star:change', function (e, value) {
+                        $('#count-existing').html(value);
+                        //return $(this).attr('data-rating');
+                    });
+
+
+                </script>
+                @*}*@
+
+
+
+               
+
+
+
+            </div>
+
+        </div>
+    </div>
+   
+</div>
